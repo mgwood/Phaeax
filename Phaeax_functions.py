@@ -22,7 +22,6 @@ def find_imports(filename):
 def find_defs(filename):
 	
 	f = open(filename, 'r')
-        
         strings = re.findall(r'def [a-zA-Z_]+[\w]*', f.read())
 
         for ii in range(len(strings)):
@@ -38,21 +37,13 @@ def find_function_calls(filename):
         strings = re.findall(r'[def ]*[a-zA-Z_]+[\w.]*\(', f.read())
 
         for ii in range(len(strings)):
+                print strings[ii]
                 match = re.search(r'^def[ ]*',strings[ii])
 
                 if not match:
-                        m = re.search(r'([\w]*).+([\w]*)',strings[ii])
-                        
+                        print strings[ii]
+                        m = re.match(r"\w*", "IsaacNewton.physicist(")
 
-
-def num_groups(regex):
-    return re.compile(regex).groups
-
-
-
-
-
-
-
-
-        
+                        if m:
+                                print m.groups()
+   
