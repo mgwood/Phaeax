@@ -24,4 +24,11 @@ def main():
 
 def return_False():
 
+    print test2.time()
+    print test2.time.time()
+    print test2.time1.time2()
+    print test2.time1.time2.time3()
+    print test2.time4.time3.time2.time1()
+    print time()
+    
     return is_even(3)
