@@ -114,11 +114,29 @@ def find_required_imports(filename):
         
         return [used_imports,unused_imports,needed_imports]
 
-def find_unused_defs(filename):
+def find_required_defs(filename):
 
-        return True
+        call_dict = find_full_function_calls(filename)
+        
+        unused_defs = find_defs(filename)
+        used_defs = []
+        needed_defs = []
+        
+        for c in call_dict.keys():
+                m = re.search(r'( )*([\w]*)(\.)([\w\.]*)',c)
+                if not m:
+                        if c in unused_defs:
+                                used_defs.append(c)
+                                unused_defs.remove(c)
+                        else:
+                                if c not in used_defs:
+                                        if c not in needed_defs:                                        
+                                                needed_defs.append(c)
+                                                
+        
+        return [used_defs,unused_defs,needed_defs]
 
-def print_file_analysis(filename, imports, defs, paths, call_dict,import_analysis):
+def print_file_analysis(filename, imports, defs, paths, call_dict,import_analysis,def_analysis):
 
         print 'Analysis of '+filename+':'
         print ' '
@@ -138,7 +156,7 @@ def print_file_analysis(filename, imports, defs, paths, call_dict,import_analysi
                         print im
                         
         if not import_analysis[2]==[]:
-                print 'Need imports not included:'
+                print 'Needed imports not included:'
                 im_flag = False
                 for im in import_analysis[2]:
                         print im
@@ -151,14 +169,37 @@ def print_file_analysis(filename, imports, defs, paths, call_dict,import_analysi
         for d in defs:
                 print d
         print ' '
+        print 'Function analysis:'
+        def_flag = True
+        
+        if not def_analysis[1]==[]:
+                print 'Unsued functions:'
+                def_flag = False
+                for im in def_analysis[1]:
+                        print im
+                        
+        if not def_analysis[2]==[]:
+                print 'Needed defs not included:'
+                def_flag = False
+                for im in def_analysis[2]:
+                        print im
+
+        if def_flag:
+                print 'No def errors'
+        print ' '
 
         print 'List of called fuctions: '
         key_order = sorted(call_dict,key=call_dict.get)
         key_order.reverse()
 
         for k in key_order:
-                print str(k)+' '+str(call_dict[k])
+                print str(call_dict[k])+' : '+str(k)
         print ' '
         
 
+def print_full_file_analysis(filename):
 
+        print_file_analysis(filename, find_imports(filename), find_defs(filename),\
+                            find_function_paths(filename), find_full_function_calls(filename)\
+                            ,find_required_imports(filename),find_required_defs(filename))
+        
