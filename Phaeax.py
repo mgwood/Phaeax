@@ -14,7 +14,8 @@ def main():
     paths = Phaeax_functions.find_function_paths('Test_def_demo.py')
     call_dict = Phaeax_functions.find_full_function_calls('Test_def_demo.py')
 
+    import_analysis = Phaeax_functions.find_required_imports('Test_def_demo.py')
 
-    Phaeax_functions.print_file_analysis('Test_def_demo.py', imports, defs, paths, call_dict)
+    Phaeax_functions.print_file_analysis('Test_def_demo.py', imports, defs, paths, call_dict,import_analysis)
     
 main()

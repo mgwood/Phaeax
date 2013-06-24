@@ -1,5 +1,6 @@
 import time
 import mwmath
+import test2
 
 def is_prime(n):
     return mwmath.is_prime(n)

@@ -84,7 +84,7 @@ def find_full_function_calls(filename):
                 match = re.search(r'^def[ ]*',strings[ii])
                 
                 if not match:
-                        m = re.search(r'( )*([\w.]*)',strings[ii])
+                        m = re.search(r'( )*([\w\.]*)',strings[ii])
                         if m:
                                 function_calls_dict[m.groups()[1]] = function_calls_dict.get(m.groups()[1],0) + 1
 
@@ -92,7 +92,33 @@ def find_full_function_calls(filename):
         return function_calls_dict
 
 
-def print_file_analysis(filename, imports, defs, paths, call_dict):
+def find_required_imports(filename):
+
+        call_dict = find_full_function_calls(filename)
+
+        unused_imports = find_imports(filename)
+        used_imports = []
+        needed_imports = []
+        for c in call_dict.keys():
+                m = re.search(r'( )*([\w]*)(\.)([\w\.]*)',c)
+                if m:
+                        if m.groups()[1] in unused_imports:
+                                used_imports.append(m.groups()[1])
+                                unused_imports.remove(m.groups()[1])
+
+                        else:
+                                if m.groups()[1] not in used_imports:
+                                        if m.groups()[1] not in needed_imports:                                        
+                                                needed_imports.append(m.groups()[1])
+                                                
+        
+        return [used_imports,unused_imports,needed_imports]
+
+def find_unused_defs(filename):
+
+        return True
+
+def print_file_analysis(filename, imports, defs, paths, call_dict,import_analysis):
 
         print 'Analysis of '+filename+':'
         print ' '
@@ -101,6 +127,24 @@ def print_file_analysis(filename, imports, defs, paths, call_dict):
         print 'Import statements:'
         for im in imports:
                 print im
+        print ' '
+        print 'Import analysis:'
+        im_flag = True
+        
+        if not import_analysis[1]==[]:
+                print 'Unsued imports:'
+                im_flag = False
+                for im in import_analysis[1]:
+                        print im
+                        
+        if not import_analysis[2]==[]:
+                print 'Need imports not included:'
+                im_flag = False
+                for im in import_analysis[2]:
+                        print im
+
+        if im_flag:
+                print 'No import errors'
         print ' '
 
         print 'Defined functions:'
@@ -114,5 +158,7 @@ def print_file_analysis(filename, imports, defs, paths, call_dict):
 
         for k in key_order:
                 print str(k)+' '+str(call_dict[k])
+        print ' '
         
-        
+
+
