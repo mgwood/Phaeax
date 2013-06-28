@@ -11,12 +11,30 @@ def find_imports(filename):
 
         f = open(filename, 'r')
         
-        strings = re.findall(r'import [a-zA-Z_]+[\w]*', f.read())
+        strings = re.findall(r'^import [a-zA-Z_]+[\w]*', f.read())
 
         for ii in range(len(strings)):
                 strings[ii] = re.sub(r'^import[ ]*', '', strings[ii])
 
         return strings
+
+
+def build_import_namespace(filename):
+
+        f = open(filename, 'r')
+        
+        strings = re.findall(r'^from[ ]*[a-zA-Z_]+[\w.]*[ ]*import[ ]*[a-zA-Z_]+[\w ,]*', f.read())
+        print strings
+        for ii in range(len(strings)):
+                match = re.search(r'^from ([a-zA-Z_]+[\w.]*)[ ]*import[ ]*([a-zA-Z_]+[\w ,]*)',strings[ii])
+
+                if match:
+                        print match.groups()
+                else:
+                        print strings[ii]
+
+
+        return True
 
 
 def find_defs(filename):

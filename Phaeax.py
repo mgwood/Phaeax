@@ -10,6 +10,8 @@ import Phaeax_functions
 
 def main(filename):
     Phaeax_functions.print_full_file_analysis(filename)
+
+    Phaeax_functions.build_import_namespace(filename)
     
     
 main('Test_def_demo.py')

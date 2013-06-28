@@ -2,6 +2,9 @@ import time
 import mwmath
 import test2
 
+from abc import hji, klm, nop
+from test3 import test1
+
 def is_prime(n):
     return mwmath.is_prime(n)
 
