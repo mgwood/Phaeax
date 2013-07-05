@@ -6,7 +6,38 @@ June 19, 2013
 '''
 
 import re
+import sys
 
+
+def build_namespace(filename):
+        #Build full namespace for input filename
+        #Namespace consists of the full function path for all function calls
+        #Input: filename string
+        #Output: dictonary where key is full function path for each call and val is number of calls
+
+        #First find all import statements
+        #Implicit import = import statement gives no indication of exact functions to be imported
+        #Explicit import = full function path given in import statement
+        #Note: from x import * is not supported
+        
+        imports = find_all_imports(filename)
+
+        imp_imports = imports[0]
+        exp_imports = imports[1]
+
+        
+
+        return True
+
+
+def find_all_imports(filename):
+        #Use regular expressions to find all import statements, first step in building namespace
+        #Input: filename string
+        #Output: array of strings for each imported file
+        
+        return [find_implicit_imports(filename), find_explicit_imports(filename)]
+
+                                     
 def find_implicit_imports(filename):
         #Use regular expressions to find import statements of the form 'import x'
         #Input: filename string
@@ -26,14 +57,23 @@ def find_explicit_imports(filename):
         #Use regular expressions to find import statements of the form 'from x import y'
         #Input: filename string
         #Output: array of strings for each imported function
+        #Note: 'from x import *' halts operation
         
         f = open(filename, 'r')
         
-        strings = re.findall(r'from[ ]+[a-zA-Z_]+[\w.]*[ ]*import[ ]+[a-zA-Z_]+[\w ,]*', f.read())
+        strings = re.findall(r'from[ ]+[a-zA-Z_]+[\w.]*[ ]*import[ ]+[a-zA-Z_\*]+[\w ,]*', f.read())
 
         imported_defs = [];
         
         for ii in range(len(strings)):
+                
+                check = re.search(r'import \*',strings[ii])
+                if check:
+                        print 'from x import * is not recommended python'
+                        print 'This import technique is not supported by Phaeax'
+                        print 'Opertation will halt'
+                        sys.exit(0)
+                
                 match = re.search(r'^from ([a-zA-Z_]+[\w.]*)[ ]*import[ ]*([a-zA-Z_]+[\w ,]*)',strings[ii])
 
                 if match:
