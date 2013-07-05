@@ -7,8 +7,11 @@ June 19, 2013
 
 import re
 
-def find_imports(filename):
-
+def find_implicit_imports(filename):
+        #Use regular expressions to find import statements of the form 'import x'
+        #Input: filename string
+        #Output: array of strings for each imported file
+        
         f = open(filename, 'r')
         
         strings = re.findall(r'^import [a-zA-Z_]+[\w]*', f.read())
@@ -19,26 +22,50 @@ def find_imports(filename):
         return strings
 
 
-def build_import_namespace(filename):
-
+def find_explicit_imports(filename):
+        #Use regular expressions to find import statements of the form 'from x import y'
+        #Input: filename string
+        #Output: array of strings for each imported function
+        
         f = open(filename, 'r')
         
-        strings = re.findall(r'^from[ ]*[a-zA-Z_]+[\w.]*[ ]*import[ ]*[a-zA-Z_]+[\w ,]*', f.read())
-        print strings
+        strings = re.findall(r'from[ ]+[a-zA-Z_]+[\w.]*[ ]*import[ ]+[a-zA-Z_]+[\w ,]*', f.read())
+
+        imported_defs = [];
+        
         for ii in range(len(strings)):
                 match = re.search(r'^from ([a-zA-Z_]+[\w.]*)[ ]*import[ ]*([a-zA-Z_]+[\w ,]*)',strings[ii])
 
                 if match:
-                        print match.groups()
-                else:
-                        print strings[ii]
+                        py_file = match.groups()[0]
 
+                        m_comma = re.search(r'([ ]*)([^,]+)(,)(.*)',match.groups()[1])
 
-        return True
+                        while m_comma:
+                                #print 'comma found'
+                                #print m_comma.groups()
+                                imported_defs.append(py_file+'.'+m_comma.groups()[1])
+
+                                m_comma = re.search(r'([ ]*)([^,]+)(,)(.*)',m_comma.groups()[3])
+
+                        else:
+                                m_comma_final = re.search(r'(.*)(,)([ ]*)(.+)',match.groups()[1])
+                                if m_comma_final:
+                                        #print 'final found'
+                                        #print m_comma_final.groups()
+                                        imported_defs.append(py_file+'.'+m_comma_final.groups()[3])
+                                else:
+                                        imported_defs.append(py_file+'.'+match.groups()[1])
+                                
+
+        return imported_defs
 
 
 def find_defs(filename):
-	
+        #Use regular expressions to find def statements of the form 'def x'
+        #Input: filename string
+        #Output: array of strings for each defined function
+        
 	f = open(filename, 'r')
         strings = re.findall(r'def [a-zA-Z_]+[\w]*', f.read())
 
@@ -49,7 +76,11 @@ def find_defs(filename):
 
 
 def find_function_paths(filename):
-	
+        #Depracted
+	#Use regular expressions to find path of each function call
+        #Input: filename string
+        #Output: array of strings for each function call
+        
 	f = open(filename, 'r')
         
         strings = re.findall(r'[def ]*[a-zA-Z_]+[\w.]*\(', f.read())
@@ -91,7 +122,10 @@ def find_function_paths(filename):
 
 
 def find_full_function_calls(filename):
-	
+	#Use regular expressions to build a dictonary of function calls
+        #Input: filename string
+        #Output: Dictonary of function calls where key is function, val is number of time called
+        
 	f = open(filename, 'r')
         
         strings = re.findall(r'[def ]*[a-zA-Z_]+[\w.]*\(', f.read())
@@ -111,10 +145,13 @@ def find_full_function_calls(filename):
 
 
 def find_required_imports(filename):
-
+        #Analyze import list and compare to called functions
+        #Input: filename string
+        #Output: array of analysis strings: used imports, unused imports, needed imports
+        
         call_dict = find_full_function_calls(filename)
 
-        unused_imports = find_imports(filename)
+        unused_imports = find_implicit_imports(filename)
         used_imports = []
         needed_imports = []
         for c in call_dict.keys():
@@ -133,7 +170,10 @@ def find_required_imports(filename):
         return [used_imports,unused_imports,needed_imports]
 
 def find_required_defs(filename):
-
+        #Analyze def list and compare to called functions
+        #Input: filename string
+        #Output: array of analysis strings: used defs, unused defs, needed defs
+        
         call_dict = find_full_function_calls(filename)
         
         unused_defs = find_defs(filename)
@@ -155,7 +195,10 @@ def find_required_defs(filename):
         return [used_defs,unused_defs,needed_defs]
 
 def print_file_analysis(filename, imports, defs, paths, call_dict,import_analysis,def_analysis):
-
+        #Analyze import list and compare to called functions
+        #Input: full file analysis
+        #Output: formatted print statement analysis
+        
         print 'Analysis of '+filename+':'
         print ' '
         print ' '
@@ -216,8 +259,10 @@ def print_file_analysis(filename, imports, defs, paths, call_dict,import_analysi
         
 
 def print_full_file_analysis(filename):
-
-        print_file_analysis(filename, find_imports(filename), find_defs(filename),\
+        #Call all helper functions and send into printer
+        #Input: filename string
+        #Output: None
+        print_file_analysis(filename, find_implicit_imports(filename), find_defs(filename),\
                             find_function_paths(filename), find_full_function_calls(filename)\
                             ,find_required_imports(filename),find_required_defs(filename))
         
