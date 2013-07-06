@@ -35,9 +35,22 @@ def build_namespace(filename):
 
         #Finally, add filename to all 'bare' function calls that don't come from imports
         defs = find_defs(filename)
+        for key in function_call_dict.keys():
+                if key in defs:
+                        function_call_dict[filename[:-2]+key] = function_call_dict[key]
+                        del function_call_dict[key]
+ 
+        #Error checking
+        #At this point every function call should have a '.', any that do not were not defined
+        #in the base file and were likely intended to be explicitely imported
+        for key in function_call_dict.keys():
+                m = re.search(r'(.*)\.(.*)',key)
+                if not m:
+                        print 'Error on function call '+key
+                        print key+' is neither defined in '+filename[:-3]+' or explicitely imported'
+                        print key+' will be removed'
 
-        
-                        
+                        del function_call_dict[key]
 
         return function_call_dict
 
