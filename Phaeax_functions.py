@@ -15,30 +15,43 @@ def build_namespace(filename):
         #Input: filename string
         #Output: dictonary where key is full function path for each call and val is number of calls
 
-        #First find all import statements
-        #Implicit import = import statement gives no indication of exact functions to be imported
-        #Explicit import = full function path given in import statement
+        #First build a dictionary of all explicit import calls
         #Note: from x import * is not supported
+        #Key = function name
+        #Val = imported file
+        exp_dict =  create_exp_imports_dict(find_explicit_imports(filename))
         
-        imports = find_all_imports(filename)
-
-        imp_imports = imports[0]
-        exp_imports = imports[1]
-
-        #From exp_imports, add elements that are just the function call name
-        
-
-        #Build dictionary of funciton calls        
+        #Build dictionary of funciton calls
+        #Key = function name
+        #Val = number of times funcation is called
         function_call_dict = find_full_function_calls(filename)
-
+        
         #Check function calls to determine if they are from explicit import, if so, add py file to them
-
+        #After creating new entry, remove initial
         for key in function_call_dict.keys():
-                if key in exp_imports:
-                        print 'Found it'
-                        print key
+                if key in exp_dict.keys():
+                        function_call_dict[exp_dict[key]+'.'+key] = function_call_dict[key]
+                        del function_call_dict[key]
 
-        return True
+        #Finally, add filename to all 'bare' function calls that don't come from imports
+        defs = find_defs(filename)
+
+        
+                        
+
+        return function_call_dict
+
+def create_exp_imports_dict(exp_imports):
+        #Input: array of explict import statement
+        #Output:  dictonary where key is function call and value is containing import file
+        exp_dict = {}
+
+        for ele in exp_imports:
+                m = re.search(r'(.*)\.(.*)',ele)
+                if m:
+                        exp_dict[m.groups()[1]]=m.groups()[0]
+
+        return exp_dict
 
 
 def find_all_imports(filename):

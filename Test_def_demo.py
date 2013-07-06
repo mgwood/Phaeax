@@ -26,6 +26,8 @@ def main():
     print is_odd(3)
 
     print nop(2)
+    print nop(3)
+    print nop(4)
 
 
 def return_False():
