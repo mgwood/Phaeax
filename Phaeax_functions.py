@@ -25,7 +25,18 @@ def build_namespace(filename):
         imp_imports = imports[0]
         exp_imports = imports[1]
 
+        #From exp_imports, add elements that are just the function call name
         
+
+        #Build dictionary of funciton calls        
+        function_call_dict = find_full_function_calls(filename)
+
+        #Check function calls to determine if they are from explicit import, if so, add py file to them
+
+        for key in function_call_dict.keys():
+                if key in exp_imports:
+                        print 'Found it'
+                        print key
 
         return True
 
@@ -114,51 +125,6 @@ def find_defs(filename):
 
         return strings
 
-
-def find_function_paths(filename):
-        #Depracted
-	#Use regular expressions to find path of each function call
-        #Input: filename string
-        #Output: array of strings for each function call
-        
-	f = open(filename, 'r')
-        
-        strings = re.findall(r'[def ]*[a-zA-Z_]+[\w.]*\(', f.read())
-
-        out_strings = []
-        
-        for ii in range(len(strings)):
-                match = re.search(r'^def[ ]*',strings[ii])
-                
-                if not match:
-                        m = re.search(r'([\w.]*)(\.)([\w]*)',strings[ii])
-                        if m:
-                                out_strings.append('Call to: '+m.groups()[2])
-
-                                m2 = re.search(r'([\w.]*)(\.)([\w]*)',m.groups()[0])
-                                
-                                while m2:
-                                        out_strings.append('   From: '+m2.groups()[2])
-                                        m2 = re.search(r'([\w.]*)(\.)([\w]*)',m2.groups()[0])
-                                else:
-                                        m2 = re.search(r'([\w]*)(\.)([\w]*)',m.groups()[0])
-                                        if m2:
-                                                out_strings.append('   From: '+m2.groups()[0]+'.py')
-                                        else:
-                                                out_strings.append('   From: '+m.groups()[0]+'.py')
-                                                
-                                continue
- 
-                        n = re.search(r'( )*([\w]*)',strings[ii])
- 
-                        if n:
-                                out_strings.append('Call to: '+n.groups()[1])
-                                out_strings.append('   From: '+filename)
-                                continue
-                        else:
-                                print 'incorrect call format: '+strings[ii]                        
- 
-        return out_strings
 
 
 def find_full_function_calls(filename):
@@ -306,3 +272,49 @@ def print_full_file_analysis(filename):
                             find_function_paths(filename), find_full_function_calls(filename)\
                             ,find_required_imports(filename),find_required_defs(filename))
         
+
+
+def find_function_paths(filename):
+        #Depracted
+	#Use regular expressions to find path of each function call
+        #Input: filename string
+        #Output: array of strings for each function call
+        
+	f = open(filename, 'r')
+        
+        strings = re.findall(r'[def ]*[a-zA-Z_]+[\w.]*\(', f.read())
+
+        out_strings = []
+        
+        for ii in range(len(strings)):
+                match = re.search(r'^def[ ]*',strings[ii])
+                
+                if not match:
+                        m = re.search(r'([\w.]*)(\.)([\w]*)',strings[ii])
+                        if m:
+                                out_strings.append('Call to: '+m.groups()[2])
+
+                                m2 = re.search(r'([\w.]*)(\.)([\w]*)',m.groups()[0])
+                                
+                                while m2:
+                                        out_strings.append('   From: '+m2.groups()[2])
+                                        m2 = re.search(r'([\w.]*)(\.)([\w]*)',m2.groups()[0])
+                                else:
+                                        m2 = re.search(r'([\w]*)(\.)([\w]*)',m.groups()[0])
+                                        if m2:
+                                                out_strings.append('   From: '+m2.groups()[0]+'.py')
+                                        else:
+                                                out_strings.append('   From: '+m.groups()[0]+'.py')
+                                                
+                                continue
+ 
+                        n = re.search(r'( )*([\w]*)',strings[ii])
+ 
+                        if n:
+                                out_strings.append('Call to: '+n.groups()[1])
+                                out_strings.append('   From: '+filename)
+                                continue
+                        else:
+                                print 'incorrect call format: '+strings[ii]                        
+ 
+        return out_strings
